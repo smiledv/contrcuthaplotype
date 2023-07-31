@@ -1,0 +1,67 @@
+#if (!require("BiocManager", quietly = TRUE))
+#  install.packages("BiocManager")
+
+#BiocManager::install("gpart")
+rm(list=ls())
+library("gpart")
+memory.limit()
+
+ld0.15 <- BigLD(genofile="genomic.recode.vcf", LD=c("r2"), CLQcut=0.15, MAFcut=0)
+ld0.2 <- BigLD(genofile="genomic.recode.vcf", LD=c("r2"), CLQcut=0.2, MAFcut=0)
+
+ld0.3 <- BigLD(genofile="genomic.recode.vcf", LD=c("r2"), CLQcut=0.3, MAFcut=0)
+ld0.4 <- BigLD(genofile="genomic.recode.vcf", LD=c("r2"), CLQcut=0.4, MAFcut=0)
+
+ld0.5 <- BigLD(genofile="genomic.recode.vcf", LD=c("r2"), CLQcut=0.5, MAFcut=0)
+ld0.6 <- BigLD(genofile="genomic.recode.vcf", LD=c("r2"), CLQcut=0.6, MAFcut=0)
+ld0.7 <- BigLD(genofile="genomic.recode.vcf", LD=c("r2"), CLQcut=0.7, MAFcut=0)
+ld0.8 <- BigLD(genofile="genomic.recode.vcf", LD=c("r2"), CLQcut=0.8, MAFcut=0)
+ld0.9 <- BigLD(genofile="genomic.recode.vcf", LD=c("r2"), CLQcut=0.9, MAFcut=0)
+ld1.0 <- BigLD(genofile="genomic.recode.vcf", LD=c("r2"), CLQcut=1, MAFcut=0)
+
+write.table(ld0.15, "ld0.15.txt", row.names = F, quote = F)
+write.table(ld0.2, "ld0.2.txt", row.names = F, quote = F)
+
+write.table(ld0.3, "ld0.3.txt", row.names = F, quote = F)
+write.table(ld0.4, "ld0.4.txt", row.names = F, quote = F)
+
+write.table(ld0.5, "ld0.5.txt", row.names = F, quote = F)
+write.table(ld0.6, "ld0.6.txt", row.names = F, quote = F)
+write.table(ld0.7, "ld0.7.txt", row.names = F, quote = F)
+write.table(ld0.8, "ld0.8.txt", row.names = F, quote = F)
+write.table(ld0.9, "ld0.9.txt", row.names = F, quote = F)
+write.table(ld1.0, "ld1.0.txt", row.names = F, quote = F)
+
+#library(devtools)
+#install_github("ytutsunomiya/GHap")
+
+setwd("/media/milad/SMVahedi/Soysheep_newanalyses/haplotypes/1.00")
+
+library(GHap)
+
+library(stringr)
+i=1
+repeat{tryCatch({ghap.compress(out.file=paste0("CHR",i),
+                               samples.file = "samples.txt",
+                               markers.file = paste0(i,".map.txt"),
+                               phase.file = paste0(i,".geno.txt"), verbose = TRUE)}
+                , error=function(e){cat("ERROR :",conditionMessage(e), "\n")})
+  i=i+1
+}
+
+i=1
+repeat{tryCatch({phase <- ghap.loadphase(phaseb.file=paste0("CHR",i,".phaseb"),
+                                         markers.file=paste0(i,".map.txt"),samples.file="samples.txt")
+blocks <- read.table(paste0(i,".txt"),header = TRUE)
+ghap.haplotyping(phase, blocks = blocks, outfile = paste0("chr",i), binary = T, ncores = 3)
+haplo <- ghap.loadhaplo(input.file = paste0("chr",i))
+ghap.hap2plink(haplo, outfile = paste0("chr",i))  ###
+map<-read.table(paste0("chr",i,".bim"))
+map$V5 <- str_replace_all(map$V5, 'N', 'G')
+map$V6 <- str_replace_all(map$V6, 'H', 'A')
+write.table(map,paste0("chr",i,".bim"),quote = FALSE,row.names = FALSE,col.names = FALSE)
+}, error=function(e){cat("ERROR :",conditionMessage(e), "\n")})
+  i=i+1
+}
+  
+  
