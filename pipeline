@@ -1,0 +1,31 @@
+1. gpart
+2. vcftools
+for i in {1..26}; do vcftools --vcf genomic.recode.vcf --chr "${i}" --recode --out "${i}"; done
+
+3. vcf_to_ghap
+for i in {1..26}; do python3 VCF_to_GHAP.py --i "${i}".recode.vcf --o "${i}"; done
+
+4. gpart_to_ghap
+python3 gpart_to_GHAP.py --i ld25.txt --o ld
+
+5. make samples.txt from fam file
+
+6. ghap
+
+7.
+for i in {1..26}; do plink1.9 --bfile chr"${i}" --recode vcf-iid --out chr"${i}" ; done
+
+for gvcblup
+8.
+for i in {1..26}; do python3 convert-from-vcf.py -i chr"${i}".vcf ; done
+error are ok
+
+for hubayes
+9. bcftools concat -o total_chr.vcf chr*.vcf
+
+10. plink1.9 --vcf total_chr.vcf --recode vcf-iid --make-bed --out genomic
+
+11. allele info
+cat *.txt > all.blocks
+cat chr*.hapalleles > all.haplotypes
+go to R
