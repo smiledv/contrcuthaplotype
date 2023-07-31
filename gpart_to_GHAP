@@ -1,0 +1,26 @@
+print('|------------------------------------------------------|')
+print('| *          |                             |   *       |')
+print('|      *     |    gpart to block-by-pos    |      *    |')
+print('|            |                             |  *        |')
+print('|  *         |   Siavash Salek Ardestani   |       *   |')
+print('|          * |            Contact:         |    *      |')
+print('|   *    *   |     siasia6650@gmail.com    |*          |')
+print('|      *     |                             |       *   |')
+print('|------------------------------------------------------|')
+import pandas as pd 
+import numpy as np
+import sys
+import argparse
+P = argparse.ArgumentParser()
+P.add_argument('--i',help='gpart output file', required=True)
+P.add_argument('--o',help='Output files prefix', type=str, required=True)
+args = P.parse_args()
+lists = pd.read_csv(args.i,delimiter=r"\s+",header=0)
+lists['cs'] =lists[['chr','start.bp']].astype(str).apply(':'.join,1)
+lists['BLOCK'] =lists[['cs','end.bp']].astype(str).apply('-'.join,1)
+lists['SIZE']=lists['end.bp']-lists['start.bp']
+lists['NSNP']=lists['end.index']-lists['start.index']+1
+GBL=lists[['BLOCK','chr','start.bp','end.bp','SIZE','NSNP']]
+GBL.columns=["BLOCK","CHR","BP1","BP2",'SIZE','NSNP']
+for i , g in GBL.groupby('CHR'):
+    g.to_csv('{}.txt'.format(i), header=True, index_label=False, sep='\t',index=False)
